@@ -15,6 +15,8 @@ class Spotify:
         self._access_token = None
         self._refresh_token = None
 
+        # self._user = None
+
     def auth_url(self):
         params = {
             'client_id': self._client_id,
@@ -48,11 +50,11 @@ class Spotify:
 
         if res.status_code != 200:
             print("Could not fetch Spotify access token due to: " + res.reason)
-            return False
+            return False, None, None
 
         self._access_token = json.loads(res.text)['access_token']
         self._refresh_token = json.loads(res.text)['refresh_token']
-        return True
+        return True, self._access_token, self._refresh_token
 
     def get_refresh_token(self):
         headers = {
@@ -76,6 +78,23 @@ class Spotify:
 
         self._refresh_token = json.loads(res.text)['access_token']
         return True
+
+    def get_current_user(self, at):
+        headers = {
+            'Authorization': 'Bearer ' + at,
+            'Content-Type' : 'application/json'
+        }
+
+        res = requests.get(
+            self.BASE_URL + '/me', 
+            headers = headers)
+
+        if res.status_code != 200:
+            print("Could not fetch Spotify user details: " + str(res.status_code) + ", " + res.text)
+            return False
+
+        user_data = json.loads(res.text)
+        return user_data['display_name']
 
     def _get_client_credentials_access_token(self):
         headers = {

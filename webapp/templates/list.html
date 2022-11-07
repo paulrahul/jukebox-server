@@ -1,12 +1,22 @@
 <table width=70%>
     <form>
-    {% for like in radio5_likes %}
+
+    <tr>
+        <td>
+            Spotify User: {{ spotify_user }}
+        </td>
+
+
+    </tr>
+
+
+    <!-- {% for like in radio5_likes %}
     <tr>
         <td>
             <input type="checkbox" name="song"/>
         </td>
         <td>{{ like.title }} - {{ like.artist }}</td>
     </tr>
-    {% endfor %}
+    {% endfor %} -->
     </form>
 </table>

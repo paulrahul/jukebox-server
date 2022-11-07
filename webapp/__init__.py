@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, g, render_template, request, url_for
+from flask import Flask, g, render_template, request, url_for, session
 from werkzeug.utils import redirect
 
 import radio5
@@ -9,6 +9,7 @@ import spotify
 def create_app():
     app = Flask(__name__)
     app.config.from_mapping(
+        SECRET_KEY="rahulp0aul",
         CLIENT_ID = os.environ.get("CLIENT_ID"),
         CLIENT_SECRET = os.environ.get("CLIENT_SECRET"),
         UNAME = os.environ.get("UNAME"),
@@ -22,11 +23,15 @@ def create_app():
 
     @app.route("/consolidate")
     def consolidate():
-        radio5_likes = get_radio5().fetch_radio5_likes(
-            app.config['CONTRIBUTOR_ID'])
+        # radio5_likes = get_radio5().fetch_radio5_likes(
+        #     app.config['CONTRIBUTOR_ID'])
+
+        spotify_user = get_spotify().get_current_user(session['spotify_at'])
+
         return render_template(
             "list.html",
-            radio5_likes=get_radio5().import_likes(radio5_likes))
+            spotify_user=spotify_user)
+            # radio5_likes=get_radio5().import_likes(radio5_likes))
 
     @app.route("/login")
     def login():
@@ -36,11 +41,18 @@ def create_app():
     def auth_callback():
         try:
             code = request.args.get("code")
-            get_spotify().get_auth_access_token(code)
         except KeyError:
-            raise ValueError("Error in authorization")
+            raise ValueError("Error in authorization. No code found")
+            return redirect(url_for('index'))            
+            
+        ret, at, rt = get_spotify().get_auth_access_token(code)
+        if ret == False:
+            raise ValueError("Error in authorization. No code found")
             return redirect(url_for('index'))
 
+        session['spotify_at'] = at
+        session['spotify_rt'] = rt
+            
         return redirect(url_for('consolidate'))
 
     def get_spotify():
