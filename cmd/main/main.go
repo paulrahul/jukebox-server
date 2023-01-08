@@ -9,6 +9,8 @@ import (
 
 	"github.com/rs/cors"
 	log "github.com/sirupsen/logrus"
+
+	. "github.com/paulrahul/jukebox-server"
 )
 
 func serverShutDownHandler(done chan bool) func() {
@@ -23,10 +25,14 @@ func serverShutDownHandler(done chan bool) func() {
 	}
 }
 
+func statusHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Status: OK")
+}
+
 func main() {
 	fmt.Println("Welcome to my Jukebox!")
 
-	Port := os.Getenv("PORT")
+	Port = os.Getenv("PORT")
 	if Port == "" {
 		panic("$PORT must be set")
 	}
@@ -39,11 +45,14 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	// Index
+	mux.HandleFunc("/", (statusHandler))
+
 	// Login
-	mux.HandleFunc("/login/", LoginHandler)
+	mux.HandleFunc("/login", LoginHandler)
 
 	// Spotify login redirection
-	mux.HandleFunc("/auth_callback/", LoginHandler)
+	mux.HandleFunc("/auth_callback", LoginHandler)
 
 	go func() {
 		err := http.ListenAndServe(":"+Port, corsWrapper.Handler(mux))

@@ -18,14 +18,21 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "OPTIONS" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	platform := r.PostFormValue("platform")
+	if strings.HasSuffix(r.URL.Path, "auth_callback") {
+		// Since this is Spotify specific.
+		auth.GetSpotifyAuth().RedirectHandler(w, r)
+	}
+
+	// platform := r.PostFormValue("platform")
+	platform := r.URL.Query().Get("platform")
+
 	authInstance := getAuthInstance(platform)
 	if authInstance == nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -33,12 +40,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(r.URL.Path, "auth_callback/") {
-		// Since this is Spotify specific.
-		auth.GetSpotifyAuth().RedirectHandler(w, r)
-	} else {
-		authInstance.Login(w, r)
-	}
+	authInstance.Login(w, r)
+
+	// w.WriteHeader(http.StatusOK)
 }
 
 func getAuthInstance(platform string) auth.Auth {

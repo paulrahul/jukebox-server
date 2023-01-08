@@ -2,8 +2,8 @@ package auth
 
 import (
 	"net/http"
-	"strconv"
 
+	log "github.com/sirupsen/logrus"
 	"github.com/zmb3/spotify/v2"
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 
@@ -24,11 +24,13 @@ var auth *spotifyauth.Authenticator
 var client *spotify.Client
 
 func Init() {
-	REDIRECT_URL = "http://localhost:" + strconv.Itoa(Port) + "/auth_callback"
+	REDIRECT_URL = "http://localhost:" + Port + "/auth_callback"
 	STATE = "jukebox-server"
 }
 
 func GetSpotifyAuth() *SpotifyAuth {
+	log.Debug("GetSpotifyAuth called.")
+
 	if spotifyAuthInstance == nil {
 		Init()
 		spotifyAuthInstance = &SpotifyAuth{}
@@ -38,9 +40,11 @@ func GetSpotifyAuth() *SpotifyAuth {
 }
 
 func (s SpotifyAuth) Login(w http.ResponseWriter, r *http.Request) {
+	log.Debug("SpotifyAuth.Login called.")
+
 	// the redirect URL must be an exact match of a URL you've registered for your application
 	// scopes determine which permissions the user is prompted to authorize
-	auth := spotifyauth.New(
+	auth = spotifyauth.New(
 		spotifyauth.WithRedirectURL(REDIRECT_URL),
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate))
 
@@ -53,6 +57,8 @@ func (s SpotifyAuth) Login(w http.ResponseWriter, r *http.Request) {
 // the user will eventually be redirected back to your redirect URL
 // typically you'll have a handler set up like the following:
 func (s SpotifyAuth) RedirectHandler(w http.ResponseWriter, r *http.Request) {
+	log.Debug("SpotifyAuth.RedirectHandler called.")
+
 	// use the same state string here that you used to generate the URL
 	token, err := auth.Token(r.Context(), STATE, r)
 	if err != nil {

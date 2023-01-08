@@ -1,5 +1,5 @@
 package jukebox
 
 var (
-	Port int
+	Port string
 )
