@@ -13,6 +13,7 @@ import (
 type SpotifyAuth struct {
 	InitTimeMilliSecs int64
 	User              User
+	Client            *spotify.Client
 }
 
 var spotifyAuthInstance *SpotifyAuth
@@ -21,7 +22,6 @@ var REDIRECT_URL string
 var STATE string
 
 var auth *spotifyauth.Authenticator
-var client *spotify.Client
 
 func Init() {
 	REDIRECT_URL = "http://localhost:" + Port + "/auth_callback"
@@ -46,7 +46,10 @@ func (s SpotifyAuth) Login(w http.ResponseWriter, r *http.Request) {
 	// scopes determine which permissions the user is prompted to authorize
 	auth = spotifyauth.New(
 		spotifyauth.WithRedirectURL(REDIRECT_URL),
-		spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate))
+		spotifyauth.WithScopes(
+			spotifyauth.ScopeUserLibraryRead,
+			spotifyauth.ScopeUserReadPrivate,
+			spotifyauth.ScopePlaylistReadPrivate))
 
 	// get the user to this URL - how you do that is up to you
 	// you should specify a unique state string to identify the session
@@ -56,7 +59,7 @@ func (s SpotifyAuth) Login(w http.ResponseWriter, r *http.Request) {
 
 // the user will eventually be redirected back to your redirect URL
 // typically you'll have a handler set up like the following:
-func (s SpotifyAuth) RedirectHandler(w http.ResponseWriter, r *http.Request) {
+func (s *SpotifyAuth) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 	log.Debug("SpotifyAuth.RedirectHandler called.")
 
 	// use the same state string here that you used to generate the URL
@@ -67,9 +70,11 @@ func (s SpotifyAuth) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create a client using the specified token
-	client = spotify.New(auth.Client(r.Context(), token))
+	s.Client = spotify.New(auth.Client(r.Context(), token))
 
 	// the client can now be used to make authenticated requests
+	// redirect now to user landing page.
+	http.Redirect(w, r, "/user", http.StatusTemporaryRedirect)
 }
 
 func (s SpotifyAuth) GetUser() User {

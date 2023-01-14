@@ -7,7 +7,6 @@ import (
 )
 
 type Auth interface {
-	// GetInstance() *Auth
 	Login(w http.ResponseWriter, r *http.Request)
 	GetUser() User
 }

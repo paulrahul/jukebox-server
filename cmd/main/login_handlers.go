@@ -14,7 +14,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{
 		"method": r.Method,
 		"path":   r.URL.Path,
-	}).Debug("/login/ or /auth_callback/ called.")
+	}).Debug("/login or /auth_callback called.")
 
 	if r.Method == "OPTIONS" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")

@@ -31,6 +31,7 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fmt.Println("Welcome to my Jukebox!")
+	log.SetLevel(log.DebugLevel)
 
 	Port = os.Getenv("PORT")
 	if Port == "" {
@@ -53,6 +54,9 @@ func main() {
 
 	// Spotify login redirection
 	mux.HandleFunc("/auth_callback", LoginHandler)
+
+	// User
+	mux.HandleFunc("/user", UserHandler)
 
 	go func() {
 		err := http.ListenAndServe(":"+Port, corsWrapper.Handler(mux))

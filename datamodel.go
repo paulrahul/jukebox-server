@@ -7,9 +7,9 @@ type User struct {
 }
 
 type Track struct {
-	ID     string `json:"id"`
-	Title  string `json:"title"`
-	Artist string `json:"artist"`
+	ID      string   `json:"id"`
+	Title   string   `json:"title"`
+	Artists []string `json:"artist"`
 }
 
 type Playlist struct {
