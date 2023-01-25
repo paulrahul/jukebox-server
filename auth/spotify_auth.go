@@ -23,8 +23,8 @@ var STATE string
 
 var auth *spotifyauth.Authenticator
 
-func Init() {
-	REDIRECT_URL = "http://localhost:" + Port + "/auth_callback"
+func SpotifyInit() {
+	REDIRECT_URL = "http://" + Host + ":" + Port + "/auth_callback"
 	STATE = "jukebox-server"
 }
 
@@ -32,7 +32,7 @@ func GetSpotifyAuth() *SpotifyAuth {
 	log.Debug("GetSpotifyAuth called.")
 
 	if spotifyAuthInstance == nil {
-		Init()
+		SpotifyInit()
 		spotifyAuthInstance = &SpotifyAuth{}
 	}
 
@@ -65,7 +65,7 @@ func (s *SpotifyAuth) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 	// use the same state string here that you used to generate the URL
 	token, err := auth.Token(r.Context(), STATE, r)
 	if err != nil {
-		http.Error(w, "Couldn't get token", http.StatusNotFound)
+		http.Error(w, "Couldn't get token: "+err.Error(), http.StatusNotFound)
 		return
 	}
 

@@ -43,7 +43,17 @@ func UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// fmt.Fprintln(w, playlists)
 
-	tracks, err := songs.GetSpotifySongsHelper().GetUserLikedTracks()
+	// Get Spotify liked songs.
+	// tracks, err := songs.GetSpotifySongsHelper().GetUserLikedTracks()
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	fmt.Fprintln(w, err)
+	// 	return
+	// }
+	// fmt.Fprintln(w, tracks)
+
+	// Get Radio5 liked songs.
+	tracks, err := songs.GetRadio5Helper().GetUserLikedTracks()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintln(w, err)

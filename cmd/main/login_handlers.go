@@ -25,7 +25,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(r.URL.Path, "auth_callback") {
+	// TODO - fix these multiple if conditions.
+	if strings.HasSuffix(r.URL.Path, "radio5_auth_callback") {
+		// Since this is Radio5 specific.
+		auth.GetRadio5Auth().RedirectHandler(w, r)
+	} else if strings.HasSuffix(r.URL.Path, "auth_callback") {
 		// Since this is Spotify specific.
 		auth.GetSpotifyAuth().RedirectHandler(w, r)
 	}
@@ -50,6 +54,7 @@ func getAuthInstance(platform string) auth.Auth {
 	case "spotify":
 		return auth.GetSpotifyAuth()
 	case "radio5":
+		return auth.GetRadio5Auth()
 	}
 
 	return nil

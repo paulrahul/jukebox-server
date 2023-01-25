@@ -33,9 +33,14 @@ func main() {
 	fmt.Println("Welcome to my Jukebox!")
 	log.SetLevel(log.DebugLevel)
 
-	Port = os.Getenv("PORT")
+	Host = os.Getenv("JUKEBOX_HOST")
+	if Host == "" {
+		panic("$JUKEBOX_HOST must be set")
+	}
+
+	Port = os.Getenv("JUKEBOX_PORT")
 	if Port == "" {
-		panic("$PORT must be set")
+		panic("$JUKEBOX_PORT must be set")
 	}
 
 	// For dev only - Set up CORS so React client can consume our API
@@ -51,6 +56,9 @@ func main() {
 
 	// Login
 	mux.HandleFunc("/login", LoginHandler)
+
+	// Radio5 login redirection
+	mux.HandleFunc("/radio5_auth_callback", LoginHandler)
 
 	// Spotify login redirection
 	mux.HandleFunc("/auth_callback", LoginHandler)
