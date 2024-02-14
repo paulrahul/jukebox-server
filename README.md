@@ -1,2 +1,2 @@
 # jukebox
-Person music dashboard project
+Personal music dashboard project
